@@ -483,7 +483,7 @@ dhcp_mac_add() {
 	config_get mac "$cfg" mac
 	[ -n "$mac" ] || return 0
 
-	xappend "--dhcp-mac=$networkid,$mac"
+	xappend "--dhcp-mac=set:$networkid,$mac"
 
 	dhcp_option_add "$cfg" "$networkid"
 }
