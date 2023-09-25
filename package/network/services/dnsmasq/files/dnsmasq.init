@@ -625,7 +625,7 @@ dhcp_add() {
 
 		case $ra_management in
 		0)
-			# SLACC with DCHP for extended options
+			# SLAAC with DCHP for extended options
 			xappend "--dhcp-range=$nettag::,constructor:$ifname,ra-stateless,ra-names"
 			;;
 		2)
