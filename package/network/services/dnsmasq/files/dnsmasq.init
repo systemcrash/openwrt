@@ -566,6 +566,8 @@ dhcp_add() {
 	config_get ra "$cfg" ra
 	config_get ra_management "$cfg" ra_management
 	config_get ra_preference "$cfg" ra_preference
+	config_get ra_lifetime "$cfg" ra_lifetime 1800
+	config_get ra_useleasetime "$cfg" ra_useleasetime 0
 	config_get dns "$cfg" dns
 
 	config_list_foreach "$cfg" "interface_name" append_interface_name "$ifname"
@@ -599,22 +601,44 @@ dhcp_add() {
 		dhcp6range="::1000,::ffff"
 	fi
 
+	if [ "$ra_useleasetime" -gt 0 ] ; then
+		case $leasetime in
+		*w)
+			ra_lifetime=$((${leasetime%%w*}*7*24*3600))
+			;;
+		*d)
+			ra_lifetime=$((${leasetime%%d*}*24*3600))
+			;;
+		*h)
+			ra_lifetime=$((${leasetime%%h*}*3600))
+			;;
+		*m)
+			ra_lifetime=$((${leasetime%%m*}*60))
+			;;
+		*s)
+			ra_lifetime=${leasetime%%s*}
+			;;
+		*)
+			ra_lifetime=$leasetime
+			;;
+		esac
+	fi
 
 	if [ $DNSMASQ_DHCP_VER -eq 6 ] && [ "$ra" = "server" ] ; then
 		# Note: dnsmasq cannot just be a DHCPv6 server (all-in-1)
 		# and let some other machine(s) send RA pointing to it.
+		# Note: ra_lifetime==0 allows a router to advertise prefixes but not a route via itself
 
 		case $ra_preference in
 		*high*)
-			xappend "--ra-param=$ifname,high,0,7200"
+			xappend "--ra-param=$ifname,high,0,$ra_lifetime"
 			;;
 		*low*)
-			xappend "--ra-param=$ifname,low,0,7200"
+			xappend "--ra-param=$ifname,low,0,$ra_lifetime"
 			;;
 		*)
-			# Send UNSOLICITED RA at default interval and live for 2 hours.
-			# TODO: convert flexible lease time into route life time (only seconds).
-			xappend "--ra-param=$ifname,0,7200"
+			# Send UNSOLICITED RA at default interval.
+			xappend "--ra-param=$ifname,0,$ra_lifetime"
 			;;
 		esac
 
