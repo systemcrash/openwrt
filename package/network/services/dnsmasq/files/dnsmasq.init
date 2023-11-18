@@ -488,7 +488,7 @@ dhcp_mac_add() {
 }
 
 dhcp_boot_add() {
-	# TODO: BOOTURL is different between DHCPv4 and DHCPv6
+	# DHCPv6 BOOTURLs do not yet exist in dnsmasq
 	local cfg="$1"
 
 	config_get match_tag "$cfg" match_tag
