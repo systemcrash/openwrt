@@ -238,109 +238,106 @@ filter_dnsmasq() {
 dhcp_subscrid_add() {
 	local cfg="$1"
 
-	config_get networkid "$cfg" networkid
-	[ -n "$networkid" ] || return 0
+	config_get set_tag "$cfg" set_tag
+	[ -n "$set_tag" ] || return 0
 
 	config_get subscriberid "$cfg" subscriberid
 	[ -n "$subscriberid" ] || return 0
 
-	xappend "--dhcp-subscrid=set:$networkid,$subscriberid"
+	xappend "--dhcp-subscrid=set:$set_tag,$subscriberid"
 
 	config_get_bool force "$cfg" force 0
 
-	dhcp_option_add "$cfg" "$networkid" "$force"
+	dhcp_option_add "$cfg" "$set_tag" "$force"
 }
 
 dhcp_remoteid_add() {
 	local cfg="$1"
 
-	config_get networkid "$cfg" networkid
-	[ -n "$networkid" ] || return 0
+	config_get set_tag "$cfg" set_tag
+	[ -n "$set_tag" ] || return 0
 
 	config_get remoteid "$cfg" remoteid
 	[ -n "$remoteid" ] || return 0
 
-	xappend "--dhcp-remoteid=set:$networkid,$remoteid"
+	xappend "--dhcp-remoteid=set:$set_tag,$remoteid"
 
 	config_get_bool force "$cfg" force 0
 
-	dhcp_option_add "$cfg" "$networkid" "$force"
+	dhcp_option_add "$cfg" "$set_tag" "$force"
 }
 
 dhcp_circuitid_add() {
 	# TODO: DHCPV6 does not have circuitid; catch "option6:"
 	local cfg="$1"
 
-	config_get networkid "$cfg" networkid
-	[ -n "$networkid" ] || return 0
+	config_get set_tag "$cfg" set_tag
+	[ -n "$set_tag" ] || return 0
 
 	config_get circuitid "$cfg" circuitid
 	[ -n "$circuitid" ] || return 0
 
-	xappend "--dhcp-circuitid=set:$networkid,$circuitid"
+	xappend "--dhcp-circuitid=set:$set_tag,$circuitid"
 
 	config_get_bool force "$cfg" force 0
 
-	dhcp_option_add "$cfg" "$networkid" "$force"
+	dhcp_option_add "$cfg" "$set_tag" "$force"
 }
 
 dhcp_userclass_add() {
 	local cfg="$1"
 
-	config_get networkid "$cfg" networkid
-	[ -n "$networkid" ] || return 0
+	config_get set_tag "$cfg" set_tag
+	[ -n "$set_tag" ] || return 0
 
 	config_get userclass "$cfg" userclass
 	[ -n "$userclass" ] || return 0
 
-	xappend "--dhcp-userclass=set:$networkid,$userclass"
+	xappend "--dhcp-userclass=set:$set_tag,$userclass"
 
 	config_get_bool force "$cfg" force 0
 
-	dhcp_option_add "$cfg" "$networkid" "$force"
+	dhcp_option_add "$cfg" "$set_tag" "$force"
 }
 
 dhcp_vendorclass_add() {
 	# TODO: DHCPV6 vendor class has stricter definitions; catch? fixup?
 	local cfg="$1"
 
-	config_get networkid "$cfg" networkid
-	[ -n "$networkid" ] || return 0
+	config_get set_tag "$cfg" set_tag
+	[ -n "$set_tag" ] || return 0
 
 	config_get vendorclass "$cfg" vendorclass
 	[ -n "$vendorclass" ] || return 0
 
-	xappend "--dhcp-vendorclass=set:$networkid,$vendorclass"
+	xappend "--dhcp-vendorclass=set:$set_tag,$vendorclass"
 
 	config_get_bool force "$cfg" force 0
 
-	dhcp_option_add "$cfg" "$networkid" "$force"
+	dhcp_option_add "$cfg" "$set_tag" "$force"
 }
 
 dhcp_match_add() {
 	local cfg="$1"
 
-	config_get networkid "$cfg" networkid
-	[ -n "$networkid" ] || return 0
+	config_get set_tag "$cfg" set_tag
+	[ -n "$set_tag" ] || return 0
 
 	config_get match "$cfg" match
 	[ -n "$match" ] || return 0
 
-	xappend "--dhcp-match=set:$networkid,$match"
+	xappend "--dhcp-match=set:$set_tag,$match"
 
 	config_get_bool force "$cfg" force 0
 
-	dhcp_option_add "$cfg" "$networkid" "$force"
+	dhcp_option_add "$cfg" "$set_tag" "$force"
 }
 
 dhcp_host_add() {
 	local cfg="$1"
-	local hosttag nametime addrs duids macs tags mtags
+	local hosttag nametime addrs duids macs tagstoset mtags
 
 	config_get_bool force "$cfg" force 0
-
-	config_get networkid "$cfg" networkid
-	[ -n "$networkid" ] && dhcp_option_add "$cfg" "$networkid" "$force"
 
 	config_get_bool enable "$cfg" enable 1
 	[ "$enable" = "0" ] && return 0
@@ -358,12 +355,12 @@ dhcp_host_add() {
 
 	config_get mac "$cfg" mac
 	config_get duid "$cfg" duid
-	config_get tag "$cfg" tag
+	config_get set_tags "$cfg" set_tags
 
 	add_tag() {
 		mtags="${mtags}tag:$1,"
 	}
-	config_list_foreach "$cfg" match_tag add_tag
+	config_list_foreach "$cfg" match_tags add_tag
 
 	if [ -n "$mac" ]; then
 		# --dhcp-host=00:20:e0:3b:13:af,192.168.0.199,lap
@@ -388,8 +385,10 @@ dhcp_host_add() {
 		hex_to_hostid hostid "$hostid"
 	fi
 
-	if [ -n "$tag" ]; then
-		for t in $tag; do append tags "$t" ",set:"; done
+	if [ -n "$set_tags" ]; then
+		for t in $set_tags; do append tagstoset "$t" ",set:"; 
+			dhcp_option_add "$cfg" "$t" "$force";
+		done
 	fi
 
 	config_get_bool broadcast "$cfg" broadcast 0
@@ -397,14 +396,14 @@ dhcp_host_add() {
 
 	[ "$broadcast" = "0" ] && broadcast= || broadcast=",set:needs-broadcast"
 
-	hosttag="${networkid:+,set:${networkid}}${tags:+,set:${tags}}$broadcast"
+	hosttags="${tagstoset:+,set:${tagstoset}}$broadcast"
 	nametime="${name:+,$name}${leasetime:+,$leasetime}"
 
 	if [ $DNSMASQ_DHCP_VER -eq 6 ]; then
 		addrs="${ip:+,$ip}${hostid:+,[::$hostid]}"
-		xappend "--dhcp-host=$mtags$macs${duids:+,$duids}$hosttag$addrs$nametime"
+		xappend "--dhcp-host=$mtags$macs${duids:+,$duids}$hosttags$addrs$nametime"
 	else
-		xappend "--dhcp-host=$mtags$macs$hosttag${ip:+,$ip}$nametime"
+		xappend "--dhcp-host=$mtags$macs$hosttags${ip:+,$ip}$nametime"
 	fi
 }
 
@@ -477,22 +476,22 @@ dhcp_tag_add() {
 dhcp_mac_add() {
 	local cfg="$1"
 
-	config_get networkid "$cfg" networkid
-	[ -n "$networkid" ] || return 0
+	config_get set_tag "$cfg" set_tag
+	[ -n "$set_tag" ] || return 0
 
 	config_get mac "$cfg" mac
 	[ -n "$mac" ] || return 0
 
-	xappend "--dhcp-mac=$networkid,$mac"
+	xappend "--dhcp-mac=set:$set_tag,$mac"
 
-	dhcp_option_add "$cfg" "$networkid"
+	dhcp_option_add "$cfg" "$set_tag"
 }
 
 dhcp_boot_add() {
 	# TODO: BOOTURL is different between DHCPv4 and DHCPv6
 	local cfg="$1"
 
-	config_get networkid "$cfg" networkid
+	config_get match_tag "$cfg" match_tag
 
 	config_get filename "$cfg" filename
 	[ -n "$filename" ] || return 0
@@ -502,24 +501,26 @@ dhcp_boot_add() {
 
 	[ -n "$serveraddress" ] && [ ! -n "$servername" ] && return 0
 
-	xappend "--dhcp-boot=${networkid:+net:$networkid,}${filename}${servername:+,$servername}${serveraddress:+,$serveraddress}"
+	xappend "--dhcp-boot=${match_tag:+tag:$match_tag,}${filename}${servername:+,$servername}${serveraddress:+,$serveraddress}"
 
 	config_get_bool force "$cfg" force 0
 
-	dhcp_option_add "$cfg" "$networkid" "$force"
+	dhcp_option_add "$cfg" "$match_tag" "$force"
 }
 
 dhcp_add() {
 	local cfg="$1"
 	local dhcp6range="::"
-	local nettag
-	local tags
+	local tagtoset #holds "set:xx" syntax
+	local tagstomatch #holds "tag:xx,..." syntax
 
 	config_get net "$cfg" interface
 	[ -n "$net" ] || return 0
 
-	config_get networkid "$cfg" networkid
-	[ -n "$networkid" ] || networkid="$net"
+	# tags: set a new tag on this network (when all match conditions are met)
+	# so that DHCP options may be specified on a per-network basis.
+	config_get set_tag "$cfg" set_tag
+	[ -n "$set_tag" ] || set_tag="$net"
 
 	network_get_device ifname "$net" || return 0
 
@@ -580,18 +581,20 @@ dhcp_add() {
 
 	start="$( dhcp_calc "$start" )"
 
+	# Build list of 'match' tags, used to match only entries that have all tags.
 	add_tag() {
-		tags="${tags}tag:$1,"
+		tagstomatch="${tagstomatch}tag:$1,"
 	}
-	config_list_foreach "$cfg" tag add_tag
+	config_list_foreach "$cfg" match_tags add_tag
 
-	nettag="${networkid:+set:${networkid},}"
+	# Build the "tags to set" param.
+	tagtoset="${set_tag:+set:${set_tag},}"
 
 	# make sure the DHCP range is not empty
 	if [ "$dhcpv4" != "disabled" ] && ipcalc "$ipaddr/$prefix_or_netmask" "$start" "$limit" ; then
 		[ "$dynamicdhcpv4" = "0" ] && END="static"
 
-		xappend "--dhcp-range=$tags$nettag$START,$END,$NETMASK,$leasetime${options:+ $options}"
+		xappend "--dhcp-range=$tagstomatch$tagtoset$START,$END,$NETMASK,$leasetime${options:+ $options}"
 	fi
 
 	if [ "$dynamicdhcpv6" = "0" ] ; then
@@ -626,20 +629,20 @@ dhcp_add() {
 
 		case $ra_management in
 		0)
-			# SLACC with DCHP for extended options
-			xappend "--dhcp-range=$nettag::,constructor:$ifname,ra-stateless,ra-names"
+			# SLAAC with DCHP for extended options
+			xappend "--dhcp-range=$tagtoset::,constructor:$ifname,ra-stateless,ra-names"
 			;;
 		2)
 			# DHCP address and RA only for management redirection
-			xappend "--dhcp-range=$nettag$dhcp6range,constructor:$ifname,$leasetime"
+			xappend "--dhcp-range=$tagtoset$dhcp6range,constructor:$ifname,$leasetime"
 			;;
 		3)
 			# SLAAC only but dnsmasq attempts to link HOSTNAME, DHCPv4 MAC, and SLAAC
-			xappend "--dhcp-range=$nettag::,constructor:$ifname,ra-only,ra-names"
+			xappend "--dhcp-range=$tagtoset::,constructor:$ifname,ra-only,ra-names"
 			;;
 		*)
 			# SLAAC and full DHCP
-			xappend "--dhcp-range=$nettag$dhcp6range,constructor:$ifname,slaac,ra-names,$leasetime"
+			xappend "--dhcp-range=$tagtoset$dhcp6range,constructor:$ifname,slaac,ra-names,$leasetime"
 			;;
 		esac
 
@@ -650,32 +653,34 @@ dhcp_add() {
 			dnss="[::]"
 		fi
 
-		dhcp_option_append "option6:dns-server,$dnss" "$networkid"
+		dhcp_option_append "option6:dns-server,$dnss" "$set_tag"
 
 		if [ -n "$dns_sl" ]; then
 			ddssl=""
 			for dd in $dns_sl; do append ddssl "$dd" ","; done
 		fi
 
-		dhcp_option_append "option6:domain-search,$ddssl" "$networkid"
+		dhcp_option_append "option6:domain-search,$ddssl" "$set_tag"
 	fi
 
-	dhcp_option_add "$cfg" "$networkid" 0
-	dhcp_option_add "$cfg" "$networkid" 2
+	# Construct DHCP option (to be applied to each tag) and their respective 'force' settings.
+	dhcp_option_add "$cfg" "$set_tag" 0
+	dhcp_option_add "$cfg" "$set_tag" 2
+
 }
 
 dhcp_option_append() {
 	local option="$1"
-	local networkid="$2"
+	local match_tag="$2"
 	local force="$3"
 
-	xappend "--dhcp-option${force:+-force}=${networkid:+$networkid,}$option"
+	xappend "--dhcp-option${force:+-force}=${match_tag:+tag:$match_tag,}$option"
 }
 
 dhcp_option_add() {
 	# NOTE: dnsmasq has explicit "option6:" prefix for DHCPv6 so no collisions
 	local cfg="$1"
-	local networkid="$2"
+	local match_tag="$2"
 	local force="$3"
 	local opt="dhcp_option"
 
@@ -686,7 +691,7 @@ dhcp_option_add() {
 	config_get list_len "$cfg" "${opt}_LENGTH"
 
 	if [ -n "$list_len" ]; then
-		config_list_foreach "$cfg" "$opt" dhcp_option_append "$networkid" "$force"
+		config_list_foreach "$cfg" "$opt" dhcp_option_append "$match_tag" "$force"
 	else
 		config_get dhcp_option "$cfg" "$opt"
 
@@ -694,7 +699,7 @@ dhcp_option_add() {
 
 		local option
 		for option in $dhcp_option; do
-			dhcp_option_append "$option" "$networkid" "$force"
+			dhcp_option_append "$option" "$match_tag" "$force"
 		done
 	fi
 }
