@@ -235,6 +235,15 @@ filter_dnsmasq() {
 	fi
 }
 
+dhcp_filter_rr_add() {
+	local cfg="$1"
+
+	config_get rr_csv "$cfg" rr_csv
+	[ -z "$rr_csv" ] && return 0
+
+	xappend "--filter-rr=$rr_csv"
+}
+
 dhcp_subscrid_add() {
 	local cfg="$1"
 
@@ -1149,6 +1158,7 @@ dnsmasq_start()
 	config_foreach filter_dnsmasq match dhcp_match_add "$cfg"
 	config_foreach filter_dnsmasq domain dhcp_domain_add "$cfg"
 	config_foreach filter_dnsmasq hostrecord dhcp_hostrecord_add "$cfg"
+	config_foreach filter_dnsmasq filter_rr dhcp_filter_rr_add "$cfg"
 	[ -n "$BOOT" ] || config_foreach filter_dnsmasq relay dhcp_relay_add "$cfg"
 
 	echo >> $CONFIGFILE_TMP
