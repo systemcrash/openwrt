@@ -71,7 +71,7 @@ get_config_restart_hash() {
 		config_get_bool v 'config' 'force_sonmp'; append _string "$v" ","
 	fi
 
-	_hash=$(echo -n "${_string}" | md5sum | awk '{ print $1 }')
+	_hash=$(echo -n "${_string}" | sha256sum | cut -d ' ' -f 1)
 	export -n "$var=$_hash"
 }
 
