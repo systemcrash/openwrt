@@ -346,7 +346,7 @@ static u64 rtl930x_l2_hash_seed(u64 mac, u32 vid)
 	return v;
 }
 
-/* Calculate both the block 0 and the block 1 hash by applyingthe same hash
+/* Calculate both the block 0 and the block 1 hash by applying the same hash
  * algorithm as the one used currently by the ASIC to the seed, and return
  * both hashes in the lower and higher word of the return value since only 12 bit of
  * the hash are significant
@@ -1540,7 +1540,7 @@ static void rtl930x_pie_lookup_enable(struct rtl838x_switch_priv *priv, int inde
  * The register space configuration size is identical for the RTL8380/90 and RTL9300,
  * however the RTL9310 has 2 more registers / fields and the physical field-ids are different
  * on all SoCs
- * On the RTL9300 the mask fields are not word-aligend!
+ * On the RTL9300 the mask fields are not word-aligned!
  */
 static void rtl930x_write_pie_templated(u32 r[], struct pie_rule *pr, enum template_field_id t[])
 {
@@ -2047,7 +2047,7 @@ static void rtl930x_pie_init(struct rtl838x_switch_priv *priv)
 	for (int i = priv->n_pie_blocks / 2; i < priv->n_pie_blocks * 3 / 4; i++)
 		sw_w32(template_selectors, RTL930X_PIE_BLK_TMPLTE_CTRL(i));
 
-	/* Enable predefined templates 2, 3 for fourth quater of all blocks */
+	/* Enable predefined templates 2, 3 for fourth quarter of all blocks */
 	template_selectors = 2 | (3 << 4);
 	for (int i = priv->n_pie_blocks * 3 / 4; i < priv->n_pie_blocks; i++)
 		sw_w32(template_selectors, RTL930X_PIE_BLK_TMPLTE_CTRL(i));
@@ -2331,12 +2331,12 @@ static int rtl930x_set_ageing_time(unsigned long msec)
 
 	t &= 0x1FFFFF;
 	t = (t * 7) / 10;
-	pr_debug("L2 AGING time: %d sec\n", t);
+	pr_debug("L2 AGEING time: %d sec\n", t);
 
 	t = (msec / 100 + 6) / 7;
 	t = t > 0x1FFFFF ? 0x1FFFFF : t;
 	sw_w32_mask(0x1FFFFF, t, RTL930X_L2_AGE_CTRL);
-	pr_debug("Dynamic aging for ports: %x\n", sw_r32(RTL930X_L2_PORT_AGE_CTRL));
+	pr_debug("Dynamic ageing for ports: %x\n", sw_r32(RTL930X_L2_PORT_AGE_CTRL));
 
 	return 0;
 }
@@ -2415,8 +2415,8 @@ static void rtl930x_led_init(struct rtl838x_switch_priv *priv)
 		sw_w32(0, RTL930X_LED_SETX_1_CTRL(set));
 
 		/**
-		 * Each led set has 4 number of leds, and each LED is configured with 16 bits
-		 * So each 32bit register holds configuration for 2 leds
+		 * Each led set has 4 number of LEDs, and each LED is configured with 16 bits
+		 * So each 32bit register holds configuration for 2 LEDs
 		 * And therefore each set requires 2 registers for configuring 4 LEDs
 		 *
 		*/

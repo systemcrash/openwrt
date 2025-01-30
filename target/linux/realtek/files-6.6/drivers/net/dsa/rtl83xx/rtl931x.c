@@ -579,7 +579,7 @@ static u64 rtl931x_l2_hash_seed(u64 mac, u32 vid)
 	return v;
 }
 
-/* Calculate both the block 0 and the block 1 hash by applyingthe same hash
+/* Calculate both the block 0 and the block 1 hash by applying the same hash
  * algorithm as the one used currently by the ASIC to the seed, and return
  * both hashes in the lower and higher word of the return value since only 12 bit of
  * the hash are significant.
@@ -847,11 +847,11 @@ static void rtl931x_vlan_profile_setup(int profile)
 	/* p[0] |= BIT(17) | BIT(16) | BIT(13) | BIT(12); */
 	p[0] |= 0x3 << 11; /* COPY2CPU */
 
-	p[1] = 0x1FFFFFF; /* L2 unknwon MC flooding portmask all ports, including the CPU-port */
+	p[1] = 0x1FFFFFF; /* L2 unknown MC flooding portmask all ports, including the CPU-port */
 	p[2] = 0xFFFFFFFF;
-	p[3] = 0x1FFFFFF; /* IPv4 unknwon MC flooding portmask */
+	p[3] = 0x1FFFFFF; /* IPv4 unknown MC flooding portmask */
 	p[4] = 0xFFFFFFFF;
-	p[5] = 0x1FFFFFF; /* IPv6 unknwon MC flooding portmask */
+	p[5] = 0x1FFFFFF; /* IPv6 unknown MC flooding portmask */
 	p[6] = 0xFFFFFFFF;
 
 	for (int i = 0; i < 7; i++)
@@ -1093,7 +1093,7 @@ int rtl931x_pie_data_fill(enum template_field_id field_type, struct pie_rule *pr
  * The register space configuration size is identical for the RTL8380/90 and RTL9300,
  * however the RTL931X has 2 more registers / fields and the physical field-ids are different
  * on all SoCs
- * On the RTL9300 the mask fields are not word-aligend!
+ * On the RTL9300 the mask fields are not word-aligned!
  */
 static void rtl931x_write_pie_templated(u32 r[], struct pie_rule *pr, enum template_field_id t[])
 {
@@ -1465,12 +1465,12 @@ static void rtl931x_pie_init(struct rtl838x_switch_priv *priv)
 	for (int i = priv->n_pie_blocks / 4; i < priv->n_pie_blocks / 2; i++)
 		sw_w32(template_selectors, RTL931X_PIE_BLK_TMPLTE_CTRL(i));
 
-	/* Enable predefined templates 0, 1 for third quater of all blocks */
+	/* Enable predefined templates 0, 1 for third quarter of all blocks */
 	template_selectors = 0 | (1 << 4);
 	for (int i = priv->n_pie_blocks / 2; i < priv->n_pie_blocks * 3 / 4; i++)
 		sw_w32(template_selectors, RTL931X_PIE_BLK_TMPLTE_CTRL(i));
 
-	/* Enable predefined templates 2, 3 for fourth quater of all blocks */
+	/* Enable predefined templates 2, 3 for fourth quarter of all blocks */
 	template_selectors = 2 | (3 << 4);
 	for (int i = priv->n_pie_blocks * 3 / 4; i < priv->n_pie_blocks; i++)
 		sw_w32(template_selectors, RTL931X_PIE_BLK_TMPLTE_CTRL(i));
