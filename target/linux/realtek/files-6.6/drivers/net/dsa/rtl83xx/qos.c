@@ -374,13 +374,13 @@ void rtl839x_set_scheduling_algorithm(struct rtl838x_switch_priv *priv, int port
 	mutex_lock(&priv->reg_mutex);
 	/* Check whether we need to empty the egress queue of that port due to Errata E0014503 */
 	if (sched == WEIGHTED_FAIR_QUEUE && t == WEIGHTED_ROUND_ROBIN && port != priv->cpu_port) {
-		/* Read Operations, Adminstatrion and Management control register */
+		/* Read Operations, Administration and Management control register */
 		oam_state = sw_r32(RTL839X_OAM_CTRL);
 
 		/* Get current OAM state */
 		oam_port_state = sw_r32(RTL839X_OAM_PORT_ACT_CTRL(port));
 
-		/* Disable OAM to block traffice */
+		/* Disable OAM to block traffic */
 		v = sw_r32(RTL839X_OAM_CTRL);
 		sw_w32_mask(0, 1, RTL839X_OAM_CTRL);
 		v = sw_r32(RTL839X_OAM_CTRL);
@@ -481,7 +481,7 @@ void rtl838x_config_qos(void)
 	/* Enable egress scheduler for CPU-Port */
 	sw_w32_mask(0, BIT(8), RTL838X_SCHED_LB_CTRL(soc_info.cpu_port));
 
-	/* Enable egress drop allways on */
+	/* Enable egress drop always on */
 	sw_w32_mask(0, BIT(11), RTL838X_FC_P_EGR_DROP_CTRL(soc_info.cpu_port));
 
 	/* Give special trap frames priority 7 (BPDUs) and routing exceptions: */

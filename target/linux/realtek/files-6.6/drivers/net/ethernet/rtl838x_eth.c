@@ -26,7 +26,7 @@
 extern struct rtl83xx_soc_info soc_info;
 
 /* Maximum number of RX rings is 8 on RTL83XX and 32 on the 93XX
- * The ring is assigned by switch based on packet/port priortity
+ * The ring is assigned by switch based on packet/port priority
  * Maximum number of TX rings is 2, Ring 2 being the high priority
  * ring on the RTL93xx SoCs. MAX_RXLEN gives the maximum length
  * for an RX ring, MAX_ENTRIES the maximum number of entries
@@ -217,7 +217,7 @@ extern int rtl931x_read_mmd_phy(u32 port, u32 devnum, u32 regnum, u32 *val);
 extern int rtl931x_write_mmd_phy(u32 port, u32 devnum, u32 regnum, u32 val);
 
 /* On the RTL93XX, the RTL93XX_DMA_IF_RX_RING_CNTR track the fill level of
- * the rings. Writing x into these registers substracts x from its content.
+ * the rings. Writing x into these registers subtracts x from its content.
  * When the content reaches the ring size, the ASIC no longer adds
  * packets to this receive queue.
  */
@@ -687,7 +687,7 @@ static void rtl838x_hw_reset(struct rtl838x_eth_priv *priv)
 	} while (sw_r32(priv->r->rst_glb_ctrl) & reset_mask);
 	mdelay(100);
 
-	/* Setup Head of Line */
+	/* Set up Head of Line */
 	if (priv->family_id == RTL8380_FAMILY_ID)
 		sw_w32(0, RTL838X_DMA_IF_RX_RING_SIZE);  /* Disabled on RTL8380 */
 	if (priv->family_id == RTL8390_FAMILY_ID)
@@ -779,7 +779,7 @@ static void rtl839x_hw_en_rxtx(struct rtl838x_eth_priv *priv)
 
 static void rtl93xx_hw_en_rxtx(struct rtl838x_eth_priv *priv)
 {
-	/* Setup CPU-Port: RX Buffer truncated at DEFAULT_MTU Bytes */
+	/* Set up CPU-Port: RX Buffer truncated at DEFAULT_MTU Bytes */
 	sw_w32((DEFAULT_MTU << 16) | RX_TRUNCATE_EN_93XX, priv->r->dma_if_ctrl);
 
 	for (int i = 0; i < priv->rxrings; i++) {
@@ -865,7 +865,7 @@ static void rtl839x_setup_notify_ring_buffer(struct rtl838x_eth_priv *priv)
 	sw_w32((u32) b->ring, RTL839X_DMA_IF_NBUF_BASE_DESC_ADDR_CTRL);
 	sw_w32_mask(0x3ff << 2, 100 << 2, RTL839X_L2_NOTIFICATION_CTRL);
 
-	/* Setup notification events */
+	/* Set up notification events */
 	sw_w32_mask(0, 1 << 14, RTL839X_L2_CTRL_0); /* RTL8390_L2_CTRL_0_FLUSH_NOTIFY_EN */
 	sw_w32_mask(0, 1 << 12, RTL839X_L2_NOTIFICATION_CTRL); /* SUSPEND_NOTIFICATION_EN */
 
@@ -1752,7 +1752,7 @@ static int rtmdio_access(struct phy_device *phydev, int op, int port,
 	} else
 		ret = oldpage;
 
-	/* reset bus to default adressing and unlock it */
+	/* reset bus to default addressing and unlock it */
 	__mdiobus_write(phydev->mdio.bus, phydev->mdio.addr,
 			RTMDIO_PORT_SELECT, -1);
 	phy_unlock_mdio_bus(phydev);
@@ -2169,7 +2169,7 @@ static int rtl931x_chip_init(struct rtl838x_eth_priv *priv)
 	do { } while (sw_r32(RTL931X_MEM_ENCAP_INIT) & 1);
 	pr_info("%s: init ENCAP done\n", __func__);
 
-	/* Initialize Managemen Information Base memory and wait until finished */
+	/* Initialize Management Information Base memory and wait until finished */
 	sw_w32(0x1, RTL931X_MEM_MIB_INIT);
 	do { } while (sw_r32(RTL931X_MEM_MIB_INIT) & 1);
 	pr_info("%s: init MIB done\n", __func__);

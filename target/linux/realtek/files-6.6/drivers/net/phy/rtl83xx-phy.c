@@ -693,7 +693,7 @@ static int rtl8226_set_eee(struct phy_device *phydev, struct ethtool_eee *e)
 	val = phy_read_mmd(phydev, MDIO_MMD_AN, MDIO_CTRL1);
 	an_enabled = !!(val & MDIO_AN_CTRL1_ENABLE);
 
-	/* Setup 100/1000MBit */
+	/* Set up 100/1000MBit */
 	val = phy_read_mmd(phydev, MDIO_MMD_AN, MDIO_AN_EEE_ADV);
 	if (e->eee_enabled)
 		val |= (MDIO_EEE_100TX | MDIO_EEE_1000T);
@@ -701,7 +701,7 @@ static int rtl8226_set_eee(struct phy_device *phydev, struct ethtool_eee *e)
 		val &= (MDIO_EEE_100TX | MDIO_EEE_1000T);
 	phy_write_mmd(phydev, MDIO_MMD_AN, MDIO_AN_EEE_ADV, val);
 
-	/* Setup 2.5GBit */
+	/* Set up 2.5GBit */
 	val = phy_read_mmd(phydev, MDIO_MMD_AN, MDIO_AN_EEE_ADV2);
 	if (e->eee_enabled)
 		val |= MDIO_EEE_2_5GT;
@@ -709,7 +709,7 @@ static int rtl8226_set_eee(struct phy_device *phydev, struct ethtool_eee *e)
 		val &= MDIO_EEE_2_5GT;
 	phy_write_mmd(phydev, MDIO_MMD_AN, MDIO_AN_EEE_ADV2, val);
 
-	/* RestartAutoNegotiation */
+	/* Restart AutoNegotiation */
 	val = phy_read_mmd(phydev, MDIO_MMD_VEND2, 0xA400);
 	val |= MDIO_AN_CTRL1_RESTART;
 	phy_write_mmd(phydev, MDIO_MMD_VEND2, 0xA400, val);
@@ -1127,7 +1127,7 @@ static int rtl8214fc_get_port(struct phy_device *phydev)
 /* Enable EEE on the RTL8218B PHYs
  * The method used is not the preferred way (which would be based on the MAC-EEE state,
  * but the only way that works since the kernel first enables EEE in the MAC
- * and then sets up the PHY. The MAC-based approach would require the oppsite.
+ * and then sets up the PHY. The MAC-based approach would require the opposite.
  */
 void rtl8218d_eee_set(struct phy_device *phydev, bool enable)
 {
@@ -1829,7 +1829,7 @@ void rtl9300_force_sds_mode(int sds, phy_interface_t phy_if)
 	else
 		rtl9300_sds_field_w(lane_0, 0x20, 18, 15, 12, lc_value);
 
-	/* Force analog LC & ring on */
+	/* Force analogue LC & ring on */
 	rtl9300_sds_field_w(lane_0, 0x21, 11, 3, 0, 0xf);
 
 	v = lc_on ? 0x3 : 0x1;
@@ -3213,7 +3213,7 @@ static void rtl931x_sds_fiber_mode_set(u32 sds, phy_interface_t mode)
 		val = 0x25;
 	}
 
-	pr_info("%s writing analog SerDes Mode value %02x\n", __func__, val);
+	pr_info("%s writing analogue SerDes Mode value %02x\n", __func__, val);
 	rtl9310_sds_field_w(asds, 0x1F, 0x9, 11, 6, val);
 
 	return;
@@ -3758,7 +3758,7 @@ static int rtl8214c_phy_probe(struct phy_device *phydev)
 	if (!(addr % 8)) {
 		struct rtl83xx_shared_private *shared = phydev->shared->priv;
 		shared->name = "RTL8214C";
-		/* Configuration must be done whil patching still possible */
+		/* Configuration must be done while patching still possible */
 		return rtl8380_configure_rtl8214c(phydev);
 	}
 

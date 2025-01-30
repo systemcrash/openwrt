@@ -437,12 +437,12 @@ static int __init rtl83xx_get_l2aging(struct rtl838x_switch_priv *priv)
 	t &= priv->family_id == RTL8380_FAMILY_ID ? 0x7fffff : 0x1FFFFF;
 
 	if (priv->family_id == RTL8380_FAMILY_ID)
-		t = t * 128 / 625; /* Aging time in seconds. 0: L2 aging disabled */
+		t = t * 128 / 625; /* Ageing time in seconds. 0: L2 ageing disabled */
 	else
 		t = (t * 3) / 5;
 
-	pr_debug("L2 AGING time: %d sec\n", t);
-	pr_debug("Dynamic aging for ports: %x\n", sw_r32(priv->r->l2_port_aging_out));
+	pr_debug("L2 AGEING time: %d sec\n", t);
+	pr_debug("Dynamic ageing for ports: %x\n", sw_r32(priv->r->l2_port_aging_out));
 
 	return t;
 }
@@ -1319,7 +1319,7 @@ static int rtl83xx_netevent_event(struct notifier_block *this,
 		dev = n->dev;
 		port = rtl83xx_port_dev_lower_find(dev, priv);
 		if (port < 0 || !(n->nud_state & NUD_VALID)) {
-			pr_debug("%s: Neigbour invalid, not updating\n", __func__);
+			pr_debug("%s: Neighbour invalid, not updating\n", __func__);
 			return NOTIFY_DONE;
 		}
 
@@ -1436,7 +1436,7 @@ static int rtl83xx_fib_event(struct notifier_block *this, unsigned long event, v
 			}
 
 			memcpy(&fib_work->fen_info, ptr, sizeof(fib_work->fen_info));
-			/* Take referece on fib_info to prevent it from being
+			/* Take reference on fib_info to prevent it from being
 			* freed while work is queued. Release it afterwards.
 			*/
 			fib_info_hold(fib_work->fen_info.fi);
@@ -1582,7 +1582,7 @@ static int __init rtl83xx_sw_probe(struct platform_device *pdev)
 
 	err = rtl83xx_mdio_probe(priv);
 	if (err) {
-		/* Probing fails the 1st time because of missing ethernet driver
+		/* Probing fails the 1st time because of missing Ethernet driver
 		 * initialization. Use this to disable traffic in case the bootloader left if on
 		 */
 		return err;
@@ -1657,7 +1657,7 @@ static int __init rtl83xx_sw_probe(struct platform_device *pdev)
 	/* Initialize hash table for L3 routing */
 	rhltable_init(&priv->routes, &route_ht_params);
 
-	/* Register netevent notifier callback to catch notifications about neighboring
+	/* Register netevent notifier callback to catch notifications about neighbouring
 	 * changes to update nexthop entries for L3 routing.
 	 */
 	priv->ne_nb.notifier_call = rtl83xx_netevent_event;
