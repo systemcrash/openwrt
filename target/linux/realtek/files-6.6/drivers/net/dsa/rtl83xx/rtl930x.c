@@ -2393,6 +2393,32 @@ void rtl930x_set_distribution_algorithm(int group, int algoidx, u32 algomsk)
 	sw_w32(newmask << l3shift, RTL930X_TRK_HASH_CTRL + (algoidx << 2));
 }
 
+void rtl930x_set_receive_management_action(int port, rma_ctrl_t type, action_type_t action)
+{
+	/* the masking values used here are copied from rtl838x but look similar to rtl930x.
+	   See rtl930x_set_*gr_filter */
+	switch(type) {
+	case BPDU:
+		sw_w32_mask(3 << ((port & 0xf) << 1), (action & 0x3) << ((port & 0xf) << 1),
+			    RTL930X_RMA_BPDU_CTRL + ((port >> 4) << 2));
+		break;
+	case PTP:
+		sw_w32_mask(3 << ((port & 0xf) << 1), (action & 0x3) << ((port & 0xf) << 1),
+			    RTL930X_RMA_PTP_CTRL + ((port >> 4) << 2));
+		break;
+	case LLDP:
+		sw_w32_mask(3 << ((port & 0xf) << 1), (action & 0x3) << ((port & 0xf) << 1),
+			    RTL930X_RMA_LLDP_CTRL + ((port >> 4) << 2));
+		break;
+	case EAPOL:
+		sw_w32_mask(3 << ((port & 0xf) << 1), (action & 0x3) << ((port & 0xf) << 1),
+			    RTL930X_RMA_EAPOL_CTRL + ((port >> 4) << 2));
+		break;
+	default:
+		break;
+	}
+}
+
 static void rtl930x_led_init(struct rtl838x_switch_priv *priv)
 {
 	struct device_node *node;
@@ -2564,5 +2590,6 @@ const struct rtl838x_reg rtl930x_reg = {
 	.set_l3_router_mac = rtl930x_set_l3_router_mac,
 	.set_l3_egress_intf = rtl930x_set_l3_egress_intf,
 	.set_distribution_algorithm = rtl930x_set_distribution_algorithm,
+	.set_receive_management_action = rtl930x_set_receive_management_action,
 	.led_init = rtl930x_led_init,
 };
