@@ -2403,8 +2403,16 @@ void rtl930x_set_receive_management_action(int port, rma_ctrl_t type, action_typ
 			    RTL930X_RMA_BPDU_CTRL + ((port >> 4) << 2));
 		break;
 	case PTP:
-		sw_w32_mask(3 << ((port & 0xf) << 1), (action & 0x3) << ((port & 0xf) << 1),
-			    RTL930X_RMA_PTP_CTRL + ((port >> 4) << 2));
+		/* udp */
+		sw_w32_mask(3 << 2, action << 2, RTL930X_RMA_PTP_CTRL + (port << 2));
+		/* eth2 */
+		sw_w32_mask(3, action, RTL930X_RMA_PTP_CTRL + (port << 2));
+		break;
+	case PTP_UDP:
+		sw_w32_mask(3 << 2, action << 2, RTL930X_RMA_PTP_CTRL + (port << 2));
+		break;
+	case PTP_ETH2:
+		sw_w32_mask(3, action, RTL930X_RMA_PTP_CTRL + (port << 2));
 		break;
 	case LLDP:
 		sw_w32_mask(3 << ((port & 0xf) << 1), (action & 0x3) << ((port & 0xf) << 1),
