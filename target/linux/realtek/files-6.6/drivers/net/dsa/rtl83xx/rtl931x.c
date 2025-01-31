@@ -911,12 +911,12 @@ static int rtl931x_set_ageing_time(unsigned long msec)
 
 	t &= 0x1FFFFF;
 	t = (t * 8) / 10;
-	pr_debug("L2 AGING time: %d sec\n", t);
+	pr_debug("L2 AGEING time: %d sec\n", t);
 
 	t = (msec / 100 + 7) / 8;
 	t = t > 0x1FFFFF ? 0x1FFFFF : t;
 	sw_w32_mask(0x1FFFFF, t, RTL931X_L2_AGE_CTRL);
-	pr_debug("Dynamic aging for ports: %x\n", sw_r32(RTL931X_L2_PORT_AGE_CTRL));
+	pr_debug("Dynamic ageing for ports: %x\n", sw_r32(RTL931X_L2_PORT_AGE_CTRL));
 
 	return 0;
 }
