@@ -2399,8 +2399,7 @@ void rtl930x_set_receive_management_action(int port, rma_ctrl_t type, action_typ
 	   See rtl930x_set_*gr_filter */
 	switch(type) {
 	case BPDU:
-		sw_w32_mask(3 << ((port & 0xf) << 1), (action & 0x3) << ((port & 0xf) << 1),
-			    RTL930X_RMA_BPDU_CTRL + ((port >> 4) << 2));
+		sw_w32_mask(7 << ((port % 10) * 3), action << ((port % 10) * 3), RTL930X_RMA_BPDU_CTRL + ((port / 10) << 2));
 		break;
 	case PTP:
 		/* udp */
@@ -2415,12 +2414,10 @@ void rtl930x_set_receive_management_action(int port, rma_ctrl_t type, action_typ
 		sw_w32_mask(3, action, RTL930X_RMA_PTP_CTRL + (port << 2));
 		break;
 	case LLDP:
-		sw_w32_mask(3 << ((port & 0xf) << 1), (action & 0x3) << ((port & 0xf) << 1),
-			    RTL930X_RMA_LLDP_CTRL + ((port >> 4) << 2));
+		sw_w32_mask(7 << ((port % 10) * 3), action << ((port % 10) * 3), RTL930X_RMA_LLDP_CTRL + ((port / 10) << 2));
 		break;
 	case EAPOL:
-		sw_w32_mask(3 << ((port & 0xf) << 1), (action & 0x3) << ((port & 0xf) << 1),
-			    RTL930X_RMA_EAPOL_CTRL + ((port >> 4) << 2));
+		sw_w32_mask(7 << ((port % 10) * 3), action << ((port % 10) * 3), RTL930X_RMA_EAPOL_CTRL + ((port / 10) << 2));
 		break;
 	default:
 		break;
