@@ -2395,33 +2395,52 @@ void rtl930x_set_distribution_algorithm(int group, int algoidx, u32 algomsk)
 
 void rtl930x_set_receive_management_action(int port, rma_ctrl_t type, action_type_t action)
 {
-	/* the masking values used here are copied from rtl838x but look similar to rtl930x.
-	   See rtl930x_set_*gr_filter */
+	pr_info("entered %s; port: %d; type: %d; action: %d\n", __func__, port, type, action);
 	switch(type) {
 	case BPDU:
+		pr_info("%s: BPDU\n", __func__);
+		pr_info("%s: BPDU; pre-write:%ld\n", __func__, rtl83xx_r32(RTL930X_RMA_BPDU_CTRL));
 		sw_w32_mask(7 << ((port % 10) * 3), action << ((port % 10) * 3), RTL930X_RMA_BPDU_CTRL + ((port / 10) << 2));
+		pr_info("%s: BPDU; wrote:%ld\n", __func__, rtl83xx_r32(RTL930X_RMA_BPDU_CTRL));
 		break;
 	case PTP:
+		pr_info("%s: PTP\n", __func__);
+		pr_info("%s: PTP; pre-write:%ld\n", __func__, rtl83xx_r32(RTL930X_RMA_PTP_CTRL));
 		/* udp */
 		sw_w32_mask(3 << 2, action << 2, RTL930X_RMA_PTP_CTRL + (port << 2));
 		/* eth2 */
 		sw_w32_mask(3, action, RTL930X_RMA_PTP_CTRL + (port << 2));
+		pr_info("%s: PTP; wrote:%ld\n", __func__, rtl83xx_r32(RTL930X_RMA_PTP_CTRL));
 		break;
 	case PTP_UDP:
+		pr_info("%s: PTP_UDP\n", __func__);
+		pr_info("%s: PTP_UDP; pre-write:%ld\n", __func__, rtl83xx_r32(RTL930X_RMA_PTP_CTRL));
 		sw_w32_mask(3 << 2, action << 2, RTL930X_RMA_PTP_CTRL + (port << 2));
+		pr_info("%s: PTP_UDP; wrote:%ld\n", __func__, rtl83xx_r32(RTL930X_RMA_PTP_CTRL));
 		break;
 	case PTP_ETH2:
+		pr_info("%s: PTP_ETH2\n", __func__);
+		pr_info("%s: PTP_ETH2; pre-write:%ld\n", __func__, rtl83xx_r32(RTL930X_RMA_PTP_CTRL));
 		sw_w32_mask(3, action, RTL930X_RMA_PTP_CTRL + (port << 2));
+		pr_info("%s: PTP_ETH2; wrote:%ld\n", __func__, rtl83xx_r32(RTL930X_RMA_PTP_CTRL));
 		break;
 	case LLDP:
+		pr_info("%s: LLDP\n", __func__);
+		pr_info("%s: LLDP; pre-write:%ld\n", __func__, rtl83xx_r32(RTL930X_RMA_LLDP_CTRL));
 		sw_w32_mask(7 << ((port % 10) * 3), action << ((port % 10) * 3), RTL930X_RMA_LLDP_CTRL + ((port / 10) << 2));
+		pr_info("%s: LLDP; wrote:%ld\n", __func__, rtl83xx_r32(RTL930X_RMA_LLDP_CTRL));
 		break;
 	case EAPOL:
+		pr_info("%s: EAPOL\n", __func__);
+		pr_info("%s: EAPOL; pre-write:%ld\n", __func__, rtl83xx_r32(RTL930X_RMA_EAPOL_CTRL));
 		sw_w32_mask(7 << ((port % 10) * 3), action << ((port % 10) * 3), RTL930X_RMA_EAPOL_CTRL + ((port / 10) << 2));
+		pr_info("%s: EAPOL; wrote:%ld\n", __func__, rtl83xx_r32(RTL930X_RMA_EAPOL_CTRL));
 		break;
 	default:
 		break;
 	}
+	pr_info("exiting %s; port: %d; type: %d; action: %d\n", __func__, port, type, action);
+
 }
 
 static void rtl930x_led_init(struct rtl838x_switch_priv *priv)
